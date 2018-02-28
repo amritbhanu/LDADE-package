@@ -2,16 +2,19 @@ from __future__ import print_function, division
 
 __author__ = 'amrit'
 
-import os
-from random import randint, random, seed, shuffle, sample
-from time import time
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from sklearn.decomposition import NMF, LatentDirichletAllocation
-from collections import Counter
-import copy
-import time
-import numpy as np
+import sys
 
+sys.dont_write_bytecode = True
+from random import shuffle, seed
+import numpy as np
+import os
+from sklearn.feature_extraction.text import CountVectorizer
+import copy
+from sklearn.decomposition import LatentDirichletAllocation
+
+ROOT=os.getcwd()
+seed(1)
+np.random.seed(1)
 
 def calculate(topics=[], lis=[], count1=0):
     count = 0
@@ -45,7 +48,7 @@ data = []
 
 
 def jaccard(a, score_topics=[], term=0):
-    labels = []  # ,6,7,8,9]
+    labels = []
     labels.append(term)
     global data
     l = []
@@ -72,30 +75,20 @@ def jaccard(a, score_topics=[], term=0):
         if len(dic[x]) == 0:
             dic[x] = [0]
     file_data['citemap'] = dic
-
-    # print(file_data)
-    X = range(len(labels))
-    Y_median = []
-    Y_iqr = []
     for feature in labels:
         Y = file_data['citemap'][feature]
         Y = sorted(Y)
         return Y[int(len(Y) / 2)]
 
 
-def get_top_words(model, path1, feature_names, n_top_words, i=0, file1=''):
+def get_top_words(model, feature_names, n_top_words, i=0, file1=''):
     topics = []
-    fo = open(path1, 'a+')
-    fo.write("Run: " + str(i) + "\n")
     for topic_idx, topic in enumerate(model.components_):
         str1 = ''
-        fo.write("Topic " + str(topic_idx) + ": ")
         for j in topic.argsort()[:-n_top_words - 1:-1]:
             str1 += feature_names[j] + " "
-            fo.write(feature_names[j] + " ")
+        str1=str(str1.encode('ascii', 'ignore'))
         topics.append(str1)
-        fo.write("\n")
-    fo.close()
     return topics
 
 
@@ -111,56 +104,32 @@ def readfile1(filename=''):
     return dict
 
 
-def _test_LDA(l, path1, file='', data_samples=[]):
-    n_topics = 10
-    n_top_words = 10
-
-    fileB = []
-    fileB.append(file)
-
+def _test_LDA( file='', data_samples=[], term=7, random_state=1, **l):
     topics = []
-    for j, file1 in enumerate(fileB):
-        for i in range(10):
-            # shuffling the list
-            shuffle(data_samples)
+    for i in range(10):
+        shuffle(data_samples)
 
-            tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
-            tf = tf_vectorizer.fit_transform(data_samples)
+        tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
+        tf = tf_vectorizer.fit_transform(data_samples)
 
-            lda = LatentDirichletAllocation(n_components=int(l[0]), doc_topic_prior=l[1],
-                                            topic_word_prior=l[2],
-                                            learning_method='online',
-                                            learning_decay=0.7, learning_offset=50.,
-                                            max_iter=10)
-            lda.fit_transform(tf)
+        lda1 = LatentDirichletAllocation(max_iter=10,learning_method='batch',random_state=random_state,**l)
 
-            # print("done in %0.3fs." % (time() - t0))
-            tf_feature_names = tf_vectorizer.get_feature_names()
-            topics.extend(get_top_words(lda, path1, tf_feature_names, n_top_words, i=i,
-                                        file1=file1))
+        lda1.fit_transform(tf)
+        tf_feature_names = tf_vectorizer.get_feature_names()
+        topics.extend(get_top_words(lda1, tf_feature_names, term, i=i, file1=file))
     return topics
 
 
-def main(*x, **r):
-    # 1st r
-    start_time = time.time()
-    base = '/share/aagrawa8/Data/results/'
-    path = os.path.join(base, 'tuned_VEM', r['file'], str(r['term']))
-    if not os.path.exists(path):
-        os.makedirs(path)
-    l = np.asarray(x)
-    # print(l)
-    b = int(l[0])
-    path1 = path + "/K_" + str(b) + "_a_" + str(l[1]) + "_b_" + str(l[2]) + ".txt"
-    with open(path1, "w") as f:
-        f.truncate()
+def ldavem(*x, **r):
 
-    topics = _test_LDA(l, path1, file=r['file'], data_samples=r['data_samples'])
-    # 2nd method
-    # another_method()
-    a = jaccard(int(l[0]), score_topics=topics, term=r['term'])
-    fo = open(path1, 'a+')
-    fo.write("\nRuntime: --- %s seconds ---\n" % (time.time() - start_time))
-    fo.write("\nScore: " + str(a))
-    fo.close()
+    l = np.asarray(x)
+    n_components = l[0]['n_components']
+    doc_topic_prior=l[0]['doc_topic_prior']
+    topic_word_prior=l[0]['topic_word_prior']
+
+    topics = _test_LDA( file=r['file'],data_samples=r['data_samples'],term=int(r['term'])
+                        ,random_state=r['random_state'],n_components=n_components,
+                       doc_topic_prior=doc_topic_prior,topic_word_prior=topic_word_prior)
+
+    a = jaccard(n_components, score_topics=topics, term=int(r['term']))
     return a
