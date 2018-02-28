@@ -33,3 +33,4 @@ np.random.seed(1)
 
 data=readfile1("/../data/preprocessed/pitsA.txt")
 val=LDADE(term=7, data=data, F=0.3, CR=0.7, NP=10, GEN=2, Goal="Max", termination="Early")
+print(val)
