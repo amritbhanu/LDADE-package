@@ -104,7 +104,7 @@ def readfile1(filename=''):
     return dict
 
 
-def _test_LDA( file='', data_samples=[], term=7, random_state=1, **l):
+def _test_LDA( file='', data_samples=[], term=7, random_state=1,max_iter=100, **l):
     topics = []
     for i in range(10):
         shuffle(data_samples)
@@ -112,7 +112,7 @@ def _test_LDA( file='', data_samples=[], term=7, random_state=1, **l):
         tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
         tf = tf_vectorizer.fit_transform(data_samples)
 
-        lda1 = LatentDirichletAllocation(max_iter=10,learning_method='batch',random_state=random_state,**l)
+        lda1 = LatentDirichletAllocation(max_iter=max_iter,learning_method='online',random_state=random_state,**l)
 
         lda1.fit_transform(tf)
         tf_feature_names = tf_vectorizer.get_feature_names()
@@ -128,7 +128,7 @@ def ldavem(*x, **r):
     topic_word_prior=l[0]['topic_word_prior']
 
     topics = _test_LDA( file=r['file'],data_samples=r['data_samples'],term=int(r['term'])
-                        ,random_state=r['random_state'],n_components=n_components,
+                        ,random_state=r['random_state'],max_iter=r['max_iter'], n_components=n_components,
                        doc_topic_prior=doc_topic_prior,topic_word_prior=topic_word_prior)
 
     a = jaccard(n_components, score_topics=topics, term=int(r['term']))
