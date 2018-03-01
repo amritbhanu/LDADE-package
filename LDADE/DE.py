@@ -57,8 +57,7 @@ class DE(object):
 
         self.cur_gen = []
         for ind in initial_population:
-            val = fitness(ind, **r)
-            self.cur_gen.append(Individual(OrderedDict(ind), val[0]))
+            self.cur_gen.append(Individual(OrderedDict(ind), fitness(ind, **r)))
 
         if self.termination=='Early':
             return self.early_termination(fitness,**r)
@@ -72,8 +71,7 @@ class DE(object):
                 trial_generation = []
                 for ind in self.cur_gen:
                     v = self._extrapolate(ind)
-                    temp=fitness(v,**r)
-                    trial_generation.append(Individual(OrderedDict(v),temp[0] ))
+                    trial_generation.append(Individual(OrderedDict(v),fitness(v,**r) ))
 
                 current_generation = self._selection(trial_generation)
                 self.cur_gen=current_generation
@@ -89,8 +87,7 @@ class DE(object):
             trial_generation = []
             for ind in self.cur_gen:
                 v = self._extrapolate(ind)
-                temp = fitness(v, **r)
-                trial_generation.append(Individual(OrderedDict(v), temp[0]))
+                trial_generation.append(Individual(OrderedDict(v), fitness(v, **r)))
             current_generation = self._selection(trial_generation)
             if sorted(self.cur_gen)==sorted(current_generation):
                 lives=lives-1
