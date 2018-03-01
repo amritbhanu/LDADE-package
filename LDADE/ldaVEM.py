@@ -81,7 +81,7 @@ def jaccard(a, score_topics=[], term=0):
         return Y[int(len(Y) / 2)]
 
 
-def get_top_words(model, feature_names, n_top_words, i=0, file1=''):
+def get_top_words(model, feature_names, n_top_words, i=0):
     topics = []
     for topic_idx, topic in enumerate(model.components_):
         str1 = ''
@@ -104,7 +104,7 @@ def readfile1(filename=''):
     return dict
 
 
-def _test_LDA( file='', data_samples=[], term=7, random_state=1,max_iter=100, **l):
+def _test_LDA(data_samples=[], term=7, random_state=1,max_iter=100, **l):
     topics = []
     for i in range(10):
         shuffle(data_samples)
@@ -116,7 +116,7 @@ def _test_LDA( file='', data_samples=[], term=7, random_state=1,max_iter=100, **
 
         lda1.fit_transform(tf)
         tf_feature_names = tf_vectorizer.get_feature_names()
-        topics.extend(get_top_words(lda1, tf_feature_names, term, i=i, file1=file))
+        topics.extend(get_top_words(lda1, tf_feature_names, term, i=i))
     return topics
 
 
@@ -127,7 +127,7 @@ def ldavem(*x, **r):
     doc_topic_prior=l[0]['doc_topic_prior']
     topic_word_prior=l[0]['topic_word_prior']
 
-    topics = _test_LDA( file=r['file'],data_samples=r['data_samples'],term=int(r['term'])
+    topics = _test_LDA( data_samples=r['data_samples'],term=int(r['term'])
                         ,random_state=r['random_state'],max_iter=r['max_iter'], n_components=n_components,
                        doc_topic_prior=doc_topic_prior,topic_word_prior=topic_word_prior)
 
