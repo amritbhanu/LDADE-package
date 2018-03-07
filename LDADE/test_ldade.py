@@ -6,7 +6,7 @@ import sys
 
 sys.dont_write_bytecode = True
 
-from LDADE import LDADE
+from LDADE import LDADE, UserTestConfig
 from collections import Counter
 import numpy as np
 from random import seed
@@ -32,5 +32,7 @@ seed(1)
 np.random.seed(1)
 
 data, _ =readfile1("../data/pitsA.txt")
-val=LDADE(term=7, data=data, F=0.3, CR=0.7, NP=10, GEN=2, Goal="Max", termination="Early",random_state=1, max_iter=10)
+what = UserTestConfig()
+what["data_samples"] = data
+val = LDADE(what)
 print(val)
