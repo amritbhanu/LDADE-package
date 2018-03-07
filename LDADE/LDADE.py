@@ -63,7 +63,7 @@ class UserTestConfig(BaseConfig):
                              NP=10,
                              GEN=2,
                              Goal="Max",
-                             data_samples=[],
+                             data_samples=None,
                              term=7,
                              fitness=ldavem,
                              max_iter=10,
