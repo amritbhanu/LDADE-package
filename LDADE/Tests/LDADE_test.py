@@ -6,10 +6,12 @@ import sys
 
 sys.dont_write_bytecode = True
 
-from LDADE import LDADE
+from LDADE import LDADE, UserTestConfig
 from collections import Counter
 import numpy as np
 from random import seed
+from os import path
+
 
 def readfile1(filename=''):
     dict = []
@@ -28,9 +30,14 @@ def readfile1(filename=''):
     labels=map(lambda x: 1 if x == key else 0, labels)
     return np.array(dict), np.array(labels)
 
-seed(1)
-np.random.seed(1)
 
-data, _ =readfile1("../data/pitsA.txt")
-val=LDADE(term=7, data=data, F=0.3, CR=0.7, NP=10, GEN=2, Goal="Max", termination="Early",random_state=1, max_iter=10)
-print(val)
+def demo():
+    seed(1)
+    np.random.seed(1)
+    this_dir, this_filename = path.split(__file__)
+    data_path = path.join(this_dir, "data", "pitsA.txt")
+    data, _ = readfile1(data_path)
+    what = UserTestConfig()
+    what["data_samples"] = data
+    val = LDADE(what)
+    print(val)
