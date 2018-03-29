@@ -1,9 +1,7 @@
 from __future__ import print_function, division
 
-__author__ = 'amrit'
 
 import sys
-
 sys.dont_write_bytecode = True
 
 from LDADE import LDADE, UserTestConfig
@@ -11,24 +9,28 @@ from collections import Counter
 import numpy as np
 from random import seed
 from os import path
+from operator import itemgetter
+
+__author__ = 'amrit'
 
 
 def readfile1(filename=''):
-    dict = []
-    labels=[]
+    _dict = []
+    labels = []
     with open(filename, 'r') as f:
         for doc in f.readlines():
             try:
                 row = doc.lower().split(">>>")
-                dict.append(row[0].strip())
+                _dict.append(row[0].strip())
                 labels.append(row[1].strip())
-            except:
+            except IndexError:
                 pass
-    count=Counter(labels)
-    import operator
-    key = max(count.iteritems(), key=operator.itemgetter(1))[0]
-    labels=map(lambda x: 1 if x == key else 0, labels)
-    return np.array(dict), np.array(labels)
+            except ValueError:
+                pass
+    count = Counter(labels)
+    key = max(count.iteritems(), key=lambda x: itemgetter(1))[0]
+    labels = map(lambda x: 1 if x == key else 0, labels)
+    return np.array(_dict), np.array(labels)
 
 
 def demo():

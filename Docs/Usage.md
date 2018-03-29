@@ -1,32 +1,8 @@
-from __future__ import print_function, division
+# Usage
 
-__author__ = 'amrit'
+We call the `LDADE` function by inputting a `UserConfig` class from `LDADE` module.
 
-import sys
-sys.dont_write_bytecode = True
-
-from ldaVEM import *
-from DE import DE
-from collections import OrderedDict
-
-
-class BaseConfig:
-    """
-    This is the basic version of user config class
-    Providing all the Basic Util inside this class
-    NO EXTRA DATA CONFIG INSIDE
-    """
-
-    def __init__(self):
-        pass
-
-    def __getitem__(self, x):
-        return self.__dict__[x]
-
-    def __setitem__(self, key, value):
-        self.__dict__[key] = value
-
-
+```python
 class UserNullConfig(BaseConfig):
     """
     This is the inherited version of basic user config class
@@ -79,28 +55,5 @@ class UserTestConfig(BaseConfig):
                                        ("topic_word_prior", 0.01)]),
             learners_para_bounds=[(10, 100), (0.1, 1), (0.01, 1)],
             learners_para_categories=["integer", "continuous", "continuous"])
+```
 
-
-def LDADE(config):
-    seed(config["random_state"])
-    np.random.seed(config["random_state"])
-
-    de = DE(
-        F=config["F"],
-        CR=config["CR"],
-        GEN=config["GEN"],
-        Goal=config["Goal"],
-        termination=config["termination"],
-        random_state=config["random_state"])
-
-    v, _ = de.solve(
-        config["fitness"],
-        config["learners_para"],
-        config["learners_para_bounds"],
-        config["learners_para_categories"],
-        term=config["term"],
-        data_samples=config["data_samples"],
-        random_state=config["random_state"],
-        max_iter=config["max_iter"])
-
-    return v.ind, v.fit

@@ -3,8 +3,8 @@ from __future__ import print_function, division
 __author__ = 'amrit'
 
 import sys
-
 sys.dont_write_bytecode = True
+
 from random import shuffle, seed
 import numpy as np
 import os
@@ -12,9 +12,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 import copy
 from sklearn.decomposition import LatentDirichletAllocation
 
-ROOT=os.getcwd()
+ROOT = os.getcwd()
 seed(1)
 np.random.seed(1)
+
 
 def calculate(topics=[], lis=[], count1=0):
     count = 0
@@ -51,24 +52,24 @@ def jaccard(a, score_topics=[], term=0):
     labels = []
     labels.append(term)
     global data
-    l = []
+    _l = []
     data = []
     file_data = {}
     for doc in score_topics:
-        l.append(doc.split())
-    for i in range(0, len(l), int(a)):
+        _l.append(doc.split())
+    for i in range(0, len(_l), int(a)):
         l1 = []
         for j in range(int(a)):
-            l1.append(l[i + j])
+            l1.append(_l[i + j])
         data.append(l1)
     dic = {}
     for x in labels:
         j_score = []
         for i, j in enumerate(data):
             for l, m in enumerate(j):
-                sum = recursion(topic=m, index=i, count1=x)
-                if sum != 0:
-                    j_score.append(sum / float(9))
+                _sum = recursion(topic=m, index=i, count1=x)
+                if _sum != 0:
+                    j_score.append(_sum / float(9))
                 '''for m,n in enumerate(l):
                     if n in j[]'''
         dic[x] = j_score
@@ -87,32 +88,39 @@ def get_top_words(model, feature_names, n_top_words, i=0):
         str1 = ''
         for j in topic.argsort()[:-n_top_words - 1:-1]:
             str1 += feature_names[j] + " "
-        str1=str(str1.encode('ascii', 'ignore'))
+        str1 = str(str1.encode('ascii', 'ignore'))
         topics.append(str1)
     return topics
 
 
 def readfile1(filename=''):
-    dict = []
+    _dict = []
     with open(filename, 'r') as f:
         for doc in f.readlines():
             try:
                 row = doc.lower().strip()
-                dict.append(row)
-            except:
+                _dict.append(row)
+            except EOFError:
                 pass
-    return dict
+            except ValueError:
+                pass
+    return _dict
 
 
-def _test_LDA(data_samples=[], term=7, random_state=1,max_iter=100, **l):
+def _test_LDA(data_samples=[], term=7, random_state=1, max_iter=100, **l):
     topics = []
     for i in range(10):
         shuffle(data_samples)
 
-        tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
+        tf_vectorizer = CountVectorizer(
+            max_df=0.95, min_df=2, stop_words='english')
         tf = tf_vectorizer.fit_transform(data_samples)
 
-        lda1 = LatentDirichletAllocation(max_iter=max_iter,learning_method='online',random_state=random_state,**l)
+        lda1 = LatentDirichletAllocation(
+            max_iter=max_iter,
+            learning_method='online',
+            random_state=random_state,
+            **l)
 
         lda1.fit_transform(tf)
         tf_feature_names = tf_vectorizer.get_feature_names()
@@ -124,12 +132,17 @@ def ldavem(*x, **r):
 
     l = np.asarray(x)
     n_components = l[0]['n_components']
-    doc_topic_prior=l[0]['doc_topic_prior']
-    topic_word_prior=l[0]['topic_word_prior']
+    doc_topic_prior = l[0]['doc_topic_prior']
+    topic_word_prior = l[0]['topic_word_prior']
 
-    topics = _test_LDA( data_samples=r['data_samples'],term=int(r['term'])
-                        ,random_state=r['random_state'],max_iter=r['max_iter'], n_components=n_components,
-                       doc_topic_prior=doc_topic_prior,topic_word_prior=topic_word_prior)
+    topics = _test_LDA(
+        data_samples=r['data_samples'],
+        term=int(r['term']),
+        random_state=r['random_state'],
+        max_iter=r['max_iter'],
+        n_components=n_components,
+        doc_topic_prior=doc_topic_prior,
+        topic_word_prior=topic_word_prior)
 
     a = jaccard(n_components, score_topics=topics, term=int(r['term']))
     return a

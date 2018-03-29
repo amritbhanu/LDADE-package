@@ -24,3 +24,6 @@ If we want to test the local packaging, we can run the following code:
 ```
 python setup.py sdist
 ```
+
+## More about this Package
+Please check `Docs` directory.
