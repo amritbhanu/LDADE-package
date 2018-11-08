@@ -46,49 +46,28 @@ def recursion(topic=[], index=0, count1=0):
 
 data = []
 
-
-def jaccard(a, score_topics=[], term=0):
-    labels = []
-    labels.append(term)
+def jaccard(a, score_topics=[], term=0,runs=9):
     global data
-    l = []
-    data = []
-    file_data = {}
-    for doc in score_topics:
-        l.append(doc.split())
-    for i in range(0, len(l), int(a)):
-        l1 = []
-        for j in range(int(a)):
-            l1.append(l[i + j])
-        data.append(l1)
-    dic = {}
-    for x in labels:
-        j_score = []
-        for i, j in enumerate(data):
-            for l, m in enumerate(j):
-                sum = recursion(topic=m, index=i, count1=x)
-                if sum != 0:
-                    j_score.append(sum / float(9))
-                '''for m,n in enumerate(l):
-                    if n in j[]'''
-        dic[x] = j_score
-        if len(dic[x]) == 0:
-            dic[x] = [0]
-    file_data['citemap'] = dic
-    for feature in labels:
-        Y = file_data['citemap'][feature]
-        Y = sorted(Y)
-        return Y[int(len(Y) / 2)]
+    data = score_topics
+    j_score = []
+    for i, j in enumerate(data):
+        for l, m in enumerate(j):
+            sum = recursion(topic=m, index=i, count1=term)
+            if sum != 0:
+                j_score.append(sum / float(runs))
+    if len(j_score) == 0:
+        j_score = [0]
+    Y = sorted(j_score)
+    return Y[int(len(Y) / 2)]
 
 
 def get_top_words(model, feature_names, n_top_words, i=0):
     topics = []
     for topic_idx, topic in enumerate(model.components_):
-        str1 = ''
+        li = []
         for j in topic.argsort()[:-n_top_words - 1:-1]:
-            str1 += feature_names[j] + " "
-        str1=str(str1.encode('ascii', 'ignore'))
-        topics.append(str1)
+            li.append(feature_names[j].encode('ascii', 'ignore'))
+        topics.append(li)
     return topics
 
 
@@ -104,9 +83,9 @@ def readfile1(filename=''):
     return dict
 
 
-def _test_LDA(data_samples=[], term=7, random_state=1,max_iter=100, **l):
+def _test_LDA(data_samples=[], term=7, random_state=1,max_iter=100,runs=10, **l):
     topics = []
-    for i in range(10):
+    for i in range(runs):
         shuffle(data_samples)
 
         tf_vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
@@ -116,7 +95,7 @@ def _test_LDA(data_samples=[], term=7, random_state=1,max_iter=100, **l):
 
         lda1.fit_transform(tf)
         tf_feature_names = tf_vectorizer.get_feature_names()
-        topics.extend(get_top_words(lda1, tf_feature_names, term, i=i))
+        topics.append(get_top_words(lda1, tf_feature_names, term, i=i))
     return topics
 
 
@@ -126,10 +105,10 @@ def ldavem(*x, **r):
     n_components = l[0]['n_components']
     doc_topic_prior=l[0]['doc_topic_prior']
     topic_word_prior=l[0]['topic_word_prior']
-
+    run=10
     topics = _test_LDA( data_samples=r['data_samples'],term=int(r['term'])
-                        ,random_state=r['random_state'],max_iter=r['max_iter'], n_components=n_components,
+                        ,random_state=r['random_state'],max_iter=r['max_iter'],runs=run, n_components=n_components,
                        doc_topic_prior=doc_topic_prior,topic_word_prior=topic_word_prior)
 
-    a = jaccard(n_components, score_topics=topics, term=int(r['term']))
+    a = jaccard(n_components, score_topics=topics, term=int(r['term']), runs=run-1)
     return a
