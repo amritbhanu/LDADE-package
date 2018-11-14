@@ -103,7 +103,7 @@ class DE(object):
             mutated=[]
             for x,i in enumerate(self.para_category):
                 if i=='continuous':
-                    mutated.append(l[0][l[0].keys()[x]]+self.F*(l[2][l[2].keys()[x]]-l[2][l[2].keys()[x]]))
+                    mutated.append(l[0][l[0].keys()[x]]+self.F*(l[1][l[1].keys()[x]]-l[2][l[2].keys()[x]]))
                 else:
                     mutated.append(self.calls[x](self.bounds[x]))
             check_mutated = []
